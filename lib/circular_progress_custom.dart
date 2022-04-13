@@ -3,7 +3,18 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class CircularProgressCustom extends StatefulWidget {
-  const CircularProgressCustom({Key? key}) : super(key: key);
+  const CircularProgressCustom({
+    Key? key,
+    this.size = 50.0,
+    this.color = Colors.white,
+    this.duration = const Duration(milliseconds: 1800),
+    this.strokeWidth = 4.0,
+  }) : super(key: key);
+
+  final Duration duration;
+  final double size;
+  final Color color;
+  final double strokeWidth;
 
   @override
   State<CircularProgressCustom> createState() => _CircularProgressCustomState();
@@ -17,8 +28,7 @@ class _CircularProgressCustomState extends State<CircularProgressCustom>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1800));
+    _controller = AnimationController(vsync: this, duration: widget.duration);
 
     _startAngleAnimation = TweenSequence(
       [
@@ -58,13 +68,19 @@ class _CircularProgressCustomState extends State<CircularProgressCustom>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
         animation: _controller,
-        builder: (BuildContext context, _) {
-          return Transform.rotate(
-            angle: 2 * pi * _rotateAnimation.value,
-            child: CustomPaint(
-              painter: CircularPainter(
-                startAngle: _startAngleAnimation.value,
-                sweepAngle: _sweepAngleAnimation.value,
+        builder: (_, __) {
+          return SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: Transform.rotate(
+              angle: 2 * pi * _rotateAnimation.value,
+              child: CustomPaint(
+                painter: CircularPainter(
+                  color: widget.color,
+                  strokeWidth: widget.strokeWidth,
+                  startAngle: _startAngleAnimation.value,
+                  sweepAngle: _sweepAngleAnimation.value,
+                ),
               ),
             ),
           );
@@ -73,8 +89,15 @@ class _CircularProgressCustomState extends State<CircularProgressCustom>
 }
 
 class CircularPainter extends CustomPainter {
-  CircularPainter({required this.startAngle, required this.sweepAngle});
+  CircularPainter({
+    required this.startAngle,
+    required this.sweepAngle,
+    required this.color,
+    required this.strokeWidth,
+  });
 
+  double strokeWidth;
+  Color color;
   double startAngle;
   double sweepAngle;
 
@@ -83,17 +106,20 @@ class CircularPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
 
     var paintProgress = Paint()
-      ..color = Colors.red
-      ..strokeWidth = 5.0
+      ..color = color
+      ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    canvas.drawArc(Rect.fromCenter(center: center, width: 55.0, height: 55.0),
-        2 * pi * startAngle, 2 * pi * sweepAngle, false, paintProgress);
+    canvas.drawArc(
+      Rect.fromCenter(center: center, width: size.width, height: size.height),
+      2 * pi * startAngle,
+      2 * pi * sweepAngle,
+      false,
+      paintProgress,
+    );
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }

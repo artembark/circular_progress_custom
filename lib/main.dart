@@ -13,7 +13,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: SafeArea(
-        child: CircularProgressCustom(),
+        child: Center(
+          child: CircularProgressCustom(),
+        ),
       ),
     );
   }
